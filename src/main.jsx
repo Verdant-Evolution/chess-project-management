@@ -957,7 +957,7 @@ function ProjectDetail({ project, onUpdate }) {
 
 function App() {
   const [theme, setTheme] = useState(
-    () => document.documentElement.dataset.theme || "light",
+    () => document.documentElement.dataset.theme || "dark",
   );
   useEffect(() => {
     document.documentElement.dataset.theme = theme;

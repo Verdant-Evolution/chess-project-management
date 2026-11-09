@@ -979,12 +979,16 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   line-height: 1.6;
 }
 .checkbox-row > input {
+  cursor: inherit;
   position: absolute;
   opacity: 0;
   width: 19px;
   height: 19px;
   left: 0;
   margin: 0;
+}
+.checkbox-row:has(input:disabled) {
+  cursor: not-allowed;
 }
 .custom-checkbox {
   height: 18px;
