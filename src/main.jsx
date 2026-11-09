@@ -850,7 +850,6 @@ function ProjectDetail({ project, onUpdate }) {
                   value={p.sample}
                   onChange={(e) => onUpdate({ sample: e.target.value })}
                 >
-                  <option>Not Yet Shipped</option>
                   <option>Awaiting Shipment to CHESS</option>
                   <option>At CHESS</option>
                   <option>In Analysis</option>
