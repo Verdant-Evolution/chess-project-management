@@ -1042,7 +1042,7 @@ function App() {
     document.documentElement.dataset.theme = theme;
     document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute("content", theme === "dark" ? "#171513" : "#ffffff");
+      ?.setAttribute("content", theme === "dark" ? "#171513" : "#f7f6f3");
     try {
       localStorage.setItem("project-management-theme", theme);
     } catch {
