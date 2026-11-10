@@ -46,42 +46,47 @@
   --backdrop: #17121966;
   --shadow: #211b2814;
   --radius: 12px;
+  --control-height: 40px;
+  --control-radius: 8px;
+  --control-font: 14px;
+  --field-font: 16px;
+  --on-danger: #ffffff;
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --background: oklch(18% 0.01 40);
-  --surface: oklch(23% 0.01 40);
-  --surface-muted: oklch(20% 0.01 40);
-  --surface-raised: oklch(26% 0.01 40);
-  --surface-hover: oklch(32% 0.01 40);
-  --input: oklch(20% 0.01 40);
-  --text: oklch(96% 0.01 40);
-  --text-secondary: oklch(90% 0.01 40);
-  --muted: oklch(70% 0.01 40);
-  --purple: oklch(72% 0.16 54);
-  --purple-dark: oklch(76% 0.17 54);
-  --purple-soft: oklch(28% 0.025 54);
-  --action: oklch(72% 0.16 54);
-  --action-hover: oklch(76% 0.17 54);
-  --on-accent: oklch(15% 0.01 40);
-  --border: oklch(28% 0.01 40);
-  --border-strong: oklch(45% 0.01 40);
-  --line: oklch(45% 0.01 40);
-  --guide: oklch(56% 0.01 40);
-  --circle-border: oklch(56% 0.01 40);
-  --active-ring: oklch(72% 0.16 54 / 0.14);
-  --notice-bg: oklch(23% 0.01 40);
-  --notice-border: oklch(35% 0.025 54);
-  --focus: oklch(72% 0.16 54);
-  --selection: oklch(40% 0.06 54);
-  --danger: #f29b99;
-  --danger-action: #f29b99;
-  --danger-hover: #ffb0ad;
-  --danger-soft: #3a2625;
-  --warning: #e4c38a;
+  --background: #171513;
+  --surface: #211e1b;
+  --surface-muted: #1b1917;
+  --surface-raised: #292521;
+  --surface-hover: #332e29;
+  --input: #1b1917;
+  --text: #f3eee8;
+  --text-secondary: #d2c8bd;
+  --muted: #afa397;
+  --purple: #eea15b;
+  --purple-dark: #f1ad70;
+  --purple-soft: #35291f;
+  --action: #e89b54;
+  --action-hover: #f1ad70;
+  --on-accent: #21160c;
+  --border: #3c352e;
+  --border-strong: #655a50;
+  --line: #62574c;
+  --guide: #847261;
+  --circle-border: #8f7d6c;
+  --active-ring: #eea15b24;
+  --notice-bg: #211e1b;
+  --notice-border: #3c352e;
+  --focus: #eea15b;
+  --selection: #60452f;
+  --danger: #efa09a;
+  --danger-action: #af514d;
+  --danger-hover: #be605b;
+  --danger-soft: #392523;
+  --warning: #d7b47a;
   --warning-soft: #342b1e;
-  --backdrop: #100c0ab0;
-  --shadow: #00000040;
+  --backdrop: #100d0bd0;
+  --shadow: #00000030;
 }
 .theme-toggle {
   display: inline-flex;
@@ -89,13 +94,13 @@
   justify-content: center;
   gap: 8px;
   flex-shrink: 0;
-  min-height: 40px;
+  min-height: var(--control-height);
   padding: 8px 12px;
   border: 1px solid var(--border-strong);
-  border-radius: 8px;
+  border-radius: var(--control-radius);
   background: var(--surface);
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: var(--control-font);
   white-space: nowrap;
 }
 .theme-toggle:hover {
@@ -103,15 +108,21 @@
   color: var(--text);
 }
 @media (max-width: 580px) {
+  :root {
+    --control-height: 44px;
+  }
   .theme-toggle {
-    width: 40px;
+    width: var(--control-height);
     padding: 8px;
+    min-height: var(--control-height);
+    border-radius: var(--control-radius);
+    font-size: var(--control-font);
   }
   .theme-toggle span {
     display: none;
   }
   .header-right {
-    gap: 10px;
+    gap: 12px;
   }
 }
 
@@ -214,7 +225,7 @@ p {
   flex-shrink: 0;
   margin-left: auto;
   display: flex;
-  gap: 25px;
+  gap: 12px;
   align-items: center;
 }
 .workspace-label {
@@ -285,21 +296,22 @@ h1 > span {
   align-items: center;
   justify-content: center;
   gap: 9px;
-  min-height: 43px;
-  border-radius: 7px;
+  min-height: var(--control-height);
+  border-radius: var(--control-radius);
   font-weight: 550;
-  font-size: 15px;
-  padding: 0 18px;
+  font-size: var(--control-font);
+  padding: 0 16px;
   white-space: nowrap;
+  line-height: 1.3;
 }
 .primary {
   background: var(--action);
   color: var(--on-accent);
-  box-shadow: 0 3px 7px var(--shadow);
+  box-shadow: none;
 }
 .primary:hover:not(:disabled) {
   background: var(--action-hover);
-  box-shadow: 0 4px 12px var(--shadow);
+  box-shadow: none;
 }
 .secondary {
   background: var(--surface);
@@ -310,9 +322,9 @@ h1 > span {
   background: var(--surface-hover);
 }
 .new-project {
-  min-height: 35px;
-  padding: 0 13px;
-  font-size: 14px;
+  min-height: var(--control-height);
+  padding: 0 14px;
+  font-size: var(--control-font);
 }
 .profile-strip {
   display: flex;
@@ -435,18 +447,18 @@ h2 {
   display: flex;
   align-items: center;
   gap: 8px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--control-radius);
+  background: var(--input);
   padding: 0 11px;
-  min-height: 35px;
+  min-height: var(--control-height);
   color: var(--muted);
 }
 .search-field input {
   width: 150px;
   border: 0;
   background: transparent;
-  font-size: 14px;
+  font-size: var(--control-font);
   outline: none;
   color: var(--text);
 }
@@ -466,6 +478,7 @@ h2 {
   cursor: pointer;
   white-space: nowrap;
   position: relative;
+  min-height: var(--control-height);
 }
 .toggle-label input {
   position: absolute;
@@ -476,8 +489,8 @@ h2 {
   margin: 0;
 }
 .toggle {
-  width: 30px;
-  height: 17px;
+  width: 34px;
+  height: 20px;
   display: block;
   border-radius: 20px;
   background: var(--border-strong);
@@ -487,8 +500,8 @@ h2 {
 .toggle:after {
   content: "";
   display: block;
-  width: 11px;
-  height: 11px;
+  width: 14px;
+  height: 14px;
   background: var(--text);
   border-radius: 50%;
   box-shadow: 0 1px 2px var(--shadow);
@@ -496,13 +509,22 @@ h2 {
 }
 .toggle-label input:checked + .toggle {
   background: var(--action);
+  width: 34px;
+  height: 20px;
+  padding: 3px;
 }
 .toggle-label input:checked + .toggle:after {
-  transform: translateX(13px);
+  transform: translateX(14px);
+  width: 14px;
+  height: 14px;
+  background: var(--on-accent);
 }
 .toggle-label input:focus-visible + .toggle {
   outline: 3px solid var(--focus);
   outline-offset: 3px;
+  width: 34px;
+  height: 20px;
+  padding: 3px;
 }
 .table-scroll {
   position: relative;
@@ -733,11 +755,11 @@ tbody tr:focus-within {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  min-height: 32px;
-  padding: 3px 6px 3px 3px;
-  border: 1px solid var(--border);
-  border-radius: 7px;
-  background: transparent;
+  min-height: var(--control-height);
+  padding: 0 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--control-radius);
+  background: var(--surface);
   color: var(--muted);
 }
 .project-status-control:hover {
@@ -745,8 +767,10 @@ tbody tr:focus-within {
   border-color: var(--border-strong);
 }
 .project-status-control .status {
-  padding: 4px 8px;
-  font-size: 12px;
+  padding: 4px 6px;
+  font-size: 13px;
+  background: transparent;
+  border: 0;
 }
 .data-statement {
   display: flex;
@@ -769,7 +793,7 @@ tbody tr:focus-within {
   margin-bottom: 4px;
 }
 .data-statement p {
-  font-size: 15px;
+  font-size: 14px;
   color: var(--text-secondary);
   line-height: 1.6;
 }
@@ -783,20 +807,23 @@ tbody tr:focus-within {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 26px 26px 18px;
+  padding: 24px;
 }
 .section-description {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--muted);
   margin-top: 6px;
+  line-height: 1.5;
 }
 .progress-count {
   font-size: 13px;
   color: var(--muted);
   background: var(--surface-muted);
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: 6px;
   white-space: nowrap;
+  border: 1px solid var(--border);
+  line-height: 1.5;
 }
 .progress-count strong {
   color: var(--purple);
@@ -916,7 +943,7 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   text-align: left;
 }
 .feasibility-checks .checkbox-row {
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.5;
 }
 .feasibility-checks .checkbox-row:has(input:disabled) {
@@ -926,14 +953,15 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
 .requirements-grid {
   display: grid;
   grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
+  align-items: start;
   gap: 22px;
-  margin-top: 23px;
+  margin-top: 24px;
 }
 .requirements-card {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
-  padding: 23px 25px;
+  padding: 24px;
 }
 .card-heading {
   display: flex;
@@ -958,14 +986,14 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   border-radius: 7px;
 }
 .card-count {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
   margin-left: auto;
 }
 .checkbox-list {
   display: grid;
   gap: 16px;
-  margin-top: 23px;
+  margin-top: 24px;
 }
 .checkbox-row {
   display: flex;
@@ -982,8 +1010,8 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   cursor: inherit;
   position: absolute;
   opacity: 0;
-  width: 19px;
-  height: 19px;
+  width: 20px;
+  height: 20px;
   left: 0;
   margin: 0;
 }
@@ -991,10 +1019,10 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   cursor: not-allowed;
 }
 .custom-checkbox {
-  height: 18px;
-  width: 18px;
+  height: 20px;
+  width: 20px;
   border: 1px solid var(--border-strong);
-  border-radius: 4px;
+  border-radius: 5px;
   display: grid;
   place-items: center;
   color: transparent;
@@ -1005,85 +1033,99 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   background: var(--action);
   border-color: var(--purple);
   color: var(--on-accent);
+  height: 20px;
+  width: 20px;
+  border-radius: 5px;
 }
 .checkbox-row input:focus-visible + .custom-checkbox {
   outline: 3px solid var(--focus);
   outline-offset: 3px;
+  height: 20px;
+  width: 20px;
+  border-radius: 5px;
 }
-.contacts-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 24px;
-  margin-top: 24px;
+.project-info-card {
+  container-type: inline-size;
 }
-.contact-card {
-  min-width: 0;
-  display: flex;
-  align-items: flex-start;
-  gap: 13px;
-  color: var(--purple);
+.edit-project-details.button {
+  min-height: var(--control-height);
+  padding: 0 14px;
+  font-size: var(--control-font);
+  border-radius: var(--control-radius);
+  line-height: 1.3;
 }
-.contact-card > svg {
-  margin-top: 5px;
+.project-details-content {
+  margin-top: 20px;
 }
-.contact-card > div {
-  min-width: 0;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.project-details-section {
+  border-top: 1px solid var(--border);
+  margin-top: 20px;
+  padding-top: 20px;
 }
-.contact-label {
-  font-size: 12px;
+.project-details-section h3 {
+  margin: 0 0 14px;
+  color: var(--text);
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: 1px;
-  color: var(--muted);
 }
-.contact-card strong {
-  font-size: 14px;
+.project-contact-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+}
+.project-detail-field {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+  align-content: start;
+}
+.project-detail-field label {
   color: var(--text-secondary);
+  font-size: 14px;
   font-weight: 500;
 }
-.contact-card div > span:last-child {
-  font-size: 12px;
-  color: var(--muted);
-}
-.contact-card select {
-  font-size: 14px;
-  color: var(--text-secondary);
-  font-weight: 500;
-  background: transparent;
-  border: 0;
-  padding: 0 15px 0 0;
-  max-width: 100%;
-  cursor: pointer;
-}
-.contact-card .contact-field {
+.project-detail-field input,
+.project-detail-field select {
   width: 100%;
   min-width: 0;
-  min-height: 36px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 7px 8px;
+  min-height: var(--control-height);
+  padding: 9px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--control-radius);
   background: var(--input);
-  color: var(--text-secondary);
-  font-size: 14px;
-  font-weight: 500;
+  color: var(--text);
+  font-size: var(--field-font);
 }
-@media (max-width: 580px) {
-  .contact-card .contact-field {
-    font-size: 16px;
+.project-detail-field select {
+  cursor: pointer;
+}
+.project-field-help {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.sample-status-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sample-status-label svg {
+  color: var(--muted);
+}
+@container (min-width: 520px) {
+  .project-contact-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 .project-dialog {
   padding: 0;
   border: 1px solid var(--border);
-  border-radius: 17px;
+  border-radius: var(--radius);
   width: 460px;
   max-width: calc(100% - 32px);
   box-shadow: 0 25px 100px var(--shadow);
   color: var(--text);
-  background: var(--surface-raised);
+  background: var(--surface);
   max-height: calc(100dvh - 32px);
   overflow-y: auto;
 }
@@ -1092,7 +1134,7 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   backdrop-filter: blur(5px);
 }
 .dialog-content {
-  padding: 29px;
+  padding: 24px;
 }
 .dialog-top {
   display: flex;
@@ -1101,31 +1143,31 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   margin-bottom: 20px;
 }
 .icon-button {
-  height: 31px;
-  width: 31px;
+  height: var(--control-height);
+  width: var(--control-height);
   display: grid;
   place-items: center;
   background: transparent;
   color: var(--muted);
-  border-radius: 6px;
+  border-radius: var(--control-radius);
 }
 .icon-button:hover {
   background: var(--purple-soft);
   color: var(--purple);
 }
 .dialog-content h2 {
-  font-size: 24px;
-  letter-spacing: -0.8px;
+  font-size: 22px;
+  letter-spacing: -0.5px;
   color: var(--text);
 }
 .dialog-content p {
-  font-size: 15px;
-  line-height: 1.8;
+  font-size: 14px;
+  line-height: 1.6;
   color: var(--text-secondary);
   margin-top: 10px;
 }
 .dialog-content form {
-  margin-top: 25px;
+  margin-top: 24px;
 }
 .dialog-content label {
   display: block;
@@ -1137,14 +1179,15 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
 .required {
   color: var(--purple);
 }
-.dialog-content input {
+.dialog-content input:not([type="checkbox"]) {
   width: 100%;
   border: 1px solid var(--border-strong);
-  border-radius: 7px;
-  padding: 12px;
+  border-radius: var(--control-radius);
+  padding: 9px 12px;
   color: var(--text);
-  font-size: 16px;
+  font-size: var(--field-font);
   background: var(--input);
+  min-height: var(--control-height);
 }
 .dialog-content input::placeholder {
   color: var(--muted);
@@ -1154,15 +1197,15 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   margin: 20px 0 0;
 }
 .dialog-content .protected-data-choice > input {
-  width: 19px;
-  height: 19px;
+  width: 20px;
+  height: 20px;
   margin: 0;
   padding: 0;
 }
 .field-hint {
   display: block;
-  font-size: 12px;
-  line-height: 1.7;
+  font-size: 13px;
+  line-height: 1.5;
   color: var(--muted);
   margin-top: 8px;
 }
@@ -1171,8 +1214,8 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   justify-content: flex-end;
   gap: 9px;
   border-top: 1px solid var(--border);
-  padding-top: 22px;
-  margin-top: 28px;
+  padding-top: 20px;
+  margin-top: 24px;
 }
 .undo-check-list {
   max-height: min(240px, 30dvh);
@@ -1200,8 +1243,11 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   border-color: var(--danger);
 }
 .dialog-actions .button {
-  font-size: 14px;
-  min-height: 40px;
+  font-size: var(--control-font);
+  min-height: var(--control-height);
+  border-radius: var(--control-radius);
+  padding: 0 16px;
+  line-height: 1.3;
 }
 .empty-state {
   display: flex;
@@ -1222,6 +1268,11 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
 }
 .empty-state .button {
   margin-top: 6px;
+  min-height: var(--control-height);
+  border-radius: var(--control-radius);
+  font-size: var(--control-font);
+  padding: 0 16px;
+  line-height: 1.3;
 }
 .storage-warning {
   font-size: 14px;
@@ -1292,14 +1343,6 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   th {
     padding-left: 12px;
     padding-right: 12px;
-  }
-  .contacts-grid {
-    grid-template-columns: 1fr;
-    row-gap: 24px;
-  }
-  .contact-card:nth-child(3) {
-    border: 0;
-    padding-left: 0;
   }
   h1 {
     font-size: 28px;
@@ -1379,7 +1422,9 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
     margin: 2px 0 0;
   }
   .table-controls .new-project {
-    min-height: 40px;
+    min-height: var(--control-height);
+    padding: 0 14px;
+    font-size: var(--control-font);
   }
   .site-header {
     padding: 16px 5%;
@@ -1436,6 +1481,7 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   }
   .search-field input {
     width: 120px;
+    font-size: var(--control-font);
   }
   .project-title-column {
     width: 40%;
@@ -1450,13 +1496,13 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
     gap: 8px;
   }
   .card-heading h2 {
-    font-size: 14px;
+    font-size: 16px;
   }
   .card-count {
-    font-size: 12px;
+    font-size: 13px;
   }
   .checkbox-row {
-    font-size: 13px;
+    font-size: 15px;
   }
   .detail-heading {
     align-items: flex-start;
@@ -1469,7 +1515,7 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
     padding: 23px 19px 17px;
   }
   .data-statement p {
-    font-size: 13px;
+    font-size: 14px;
   }
   .site-footer {
     margin: 0 5%;
@@ -1489,7 +1535,7 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
     font-size: 12px;
   }
   .header-right {
-    gap: 0;
+    gap: 12px;
   }
   .page-heading {
     flex-wrap: wrap;
@@ -1561,17 +1607,21 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   .search-field {
     flex: 1 1 calc(100% - 140px);
     min-width: 0;
-    min-height: 40px;
+    min-height: var(--control-height);
+    border-radius: var(--control-radius);
+    border: 1px solid var(--border-strong);
+    background: var(--input);
   }
   .search-field input {
     width: 100%;
     min-width: 0;
-    font-size: 16px;
+    font-size: var(--control-font);
   }
   .toggle-label {
     margin-left: auto;
     font-size: 12px;
     gap: 7px;
+    min-height: var(--control-height);
   }
   th {
     font-size: 12px;
@@ -1620,12 +1670,14 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
     font-size: 16px;
   }
   .section-description {
-    font-size: 12px;
-    line-height: 1.7;
+    font-size: 14px;
+    line-height: 1.5;
   }
   .progress-count {
     font-size: 12px;
-    padding: 7px;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    line-height: 1.5;
   }
   .timeline {
     min-width: 850px;
@@ -1639,57 +1691,37 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
     font-size: 16px;
   }
   .checkbox-row {
-    font-size: 14px;
+    font-size: 15px;
   }
   .requirements-card {
-    padding: 21px;
-  }
-  .contacts-grid {
-    grid-template-columns: 1fr;
-    gap: 0;
-    margin-top: 26px;
-    padding: 0;
-  }
-  .contact-card,
-  .contact-card:first-child,
-  .contact-card:last-child {
-    padding: 20px 4px;
-    border-left: 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .contact-card:last-child {
-    border: 0;
-  }
-  .contact-card > div {
-    gap: 7px;
-  }
-  .contact-label {
-    font-size: 12px;
-  }
-  .contact-card strong,
-  .contact-card select {
-    font-size: 14px;
-  }
-  .contact-card div > span:last-child {
-    font-size: 12px;
+    padding: 20px;
   }
   .dialog-content {
     padding: 24px;
   }
   .dialog-content h2 {
-    font-size: 23px;
+    font-size: 22px;
+    letter-spacing: -0.5px;
   }
   .project-dialog {
-    border-radius: 13px;
+    border-radius: var(--radius);
+    background: var(--surface);
   }
   .dialog-content p {
-    font-size: 13px;
+    font-size: 14px;
+    line-height: 1.6;
   }
   .dialog-actions {
     gap: 8px;
+    padding-top: 20px;
+    margin-top: 24px;
   }
   .dialog-actions .button {
-    padding: 0 12px;
+    padding: 0 16px;
+    min-height: var(--control-height);
+    border-radius: var(--control-radius);
+    font-size: var(--control-font);
+    line-height: 1.3;
   }
 }
 @media (max-width: 850px) {
@@ -1856,11 +1888,12 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
 .branch-actions button {
   background: transparent;
   color: var(--purple);
-  font-size: 12px;
-  min-height: 30px;
-  padding: 4px;
-  text-decoration: underline;
+  font-size: 13px;
+  min-height: 32px;
+  padding: 4px 6px;
+  text-decoration: none;
   text-underline-offset: 3px;
+  border-radius: 6px;
 }
 .branch-actions .delete-branch {
   color: var(--danger);
@@ -1879,7 +1912,7 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   margin-left: auto;
 }
 .danger {
-  color: var(--on-accent);
+  color: var(--on-danger);
   background: var(--danger-action);
 }
 .danger:hover {
@@ -2039,7 +2072,7 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   }
   .mobile-feasibility .checkbox-row {
     margin-left: 32px;
-    font-size: 13px;
+    font-size: 14px;
   }
   .mobile-beamtimes {
     display: grid;
@@ -2107,7 +2140,7 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
     display: flex;
     flex-wrap: wrap;
     gap: 4px 12px;
-    font-size: 12px;
+    font-size: 13px;
     line-height: 1.5;
     color: var(--muted);
   }
@@ -2124,7 +2157,7 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   }
   .mobile-beamtime-footer > span {
     color: var(--muted);
-    font-size: 12px;
+    font-size: 13px;
     line-height: 1.5;
   }
   .mobile-beamtime-footer .branch-actions {
@@ -2147,30 +2180,57 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   }
 }
 .team-trigger {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   width: 100%;
-  padding: 0;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-muted);
+  color: var(--text);
   text-align: left;
 }
 .team-trigger:hover {
   background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+.team-trigger > svg:first-child {
+  color: var(--purple);
 }
 .team-trigger-text {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
   flex: 1;
   min-width: 0;
-  flex-direction: column;
-  gap: 6px;
 }
-.team-trigger-text > span:last-child {
+.team-trigger-label {
+  grid-column: 1;
+  font-size: 14px;
+  font-weight: 600;
+}
+.team-trigger-text strong {
+  grid-column: 1;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 400;
 }
-.team-trigger > .team-trigger-arrow {
+.team-trigger-action {
+  grid-column: 2;
+  grid-row: 1 / 3;
   align-self: center;
-  margin: 0;
+  color: var(--purple);
+  font-size: 13px;
+}
+.team-trigger-arrow {
+  color: var(--purple);
+}
+@media (max-width: 380px) {
+  .team-trigger-action {
+    display: none;
+  }
 }
 .app-shell {
   transition: margin-right 280ms ease;
@@ -2216,7 +2276,7 @@ body.team-panel-open .workspace-label {
   background: var(--surface-raised);
 }
 .team-sidebar-header h2 {
-  font-size: 21px;
+  font-size: 20px;
   letter-spacing: -0.4px;
 }
 .team-sidebar-header p {
@@ -2310,7 +2370,7 @@ body.team-panel-open .workspace-label {
   border-radius: 7px;
   background: transparent;
   color: var(--purple);
-  font-size: 12px;
+  font-size: 13px;
 }
 .team-member-action svg {
   width: 15px;
@@ -2377,17 +2437,22 @@ body.team-panel-open .workspace-label {
 .team-member-form input {
   width: 100%;
   min-width: 0;
-  min-height: 40px;
-  padding: 9px 11px;
+  min-height: var(--control-height);
+  padding: 9px 12px;
   border: 1px solid var(--border-strong);
-  border-radius: 6px;
+  border-radius: var(--control-radius);
   background: var(--input);
   color: var(--text);
-  font-size: 15px;
+  font-size: var(--field-font);
 }
 .team-member-form .button {
   justify-self: start;
   margin-top: 4px;
+  min-height: var(--control-height);
+  border-radius: var(--control-radius);
+  font-size: var(--control-font);
+  padding: 0 16px;
+  line-height: 1.3;
 }
 .team-member-message {
   min-height: 18px;
@@ -2433,7 +2498,7 @@ body.team-panel-open .workspace-label {
     padding: 14px 18px;
   }
   .team-sidebar-header h2 {
-    font-size: 18px;
+    font-size: 20px;
   }
   .team-sidebar-header p {
     margin-top: 4px;
@@ -2497,7 +2562,7 @@ body.team-panel-open .workspace-label {
   }
   .team-member-action {
     font-size: 13px;
-    min-height: 36px;
+    min-height: 40px;
     padding: 4px 6px;
   }
   .team-member-form {
@@ -2505,7 +2570,10 @@ body.team-panel-open .workspace-label {
     margin-bottom: max(16px, env(safe-area-inset-bottom));
   }
   .team-member-form input {
-    font-size: 16px;
+    font-size: var(--field-font);
+    min-height: var(--control-height);
+    padding: 9px 12px;
+    border-radius: var(--control-radius);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2544,7 +2612,11 @@ body.team-panel-open .workspace-label {
     margin-left: 0;
   }
   .project-status-control {
-    min-height: 36px;
+    min-height: var(--control-height);
+    border-radius: var(--control-radius);
+    padding: 0 8px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2554,4 +2626,14 @@ body.team-panel-open .workspace-label {
     scroll-behavior: auto !important;
     transition: none !important;
   }
+}
+
+.branch-actions button:hover {
+  background: var(--purple-soft);
+}
+.branch-actions .delete-branch:hover {
+  background: var(--danger-soft);
+}
+button:disabled:hover {
+  box-shadow: none;
 }

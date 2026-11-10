@@ -118,7 +118,7 @@ export default function ProjectTeam({ project, onUpdate, icon }) {
     <>
       <button
         type="button"
-        className="contact-card team-trigger"
+        className="team-trigger"
         aria-label="Manage project team"
         ref={triggerRef}
         aria-expanded={isOpen}
@@ -127,13 +127,13 @@ export default function ProjectTeam({ project, onUpdate, icon }) {
       >
         {icon}
         <span className="team-trigger-text">
-          <span className="contact-label">PROJECT TEAM</span>
+          <span className="team-trigger-label">Team members</span>
           <strong>
             {members.length
               ? `${members.length} ${members.length === 1 ? "person" : "people"}`
               : "No team members"}
           </strong>
-          <span>View and manage team</span>
+          <span className="team-trigger-action">Manage team</span>
         </span>
         <svg
           className="team-trigger-arrow"

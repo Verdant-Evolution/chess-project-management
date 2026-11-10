@@ -21,6 +21,7 @@ import "./styles.css";
 import BeamtimeBranches, { BeamtimeMeta } from "./BeamtimeBranches";
 import Checkmark from "./Checkmark";
 import ProjectTeam from "./ProjectTeam";
+import ProjectDetailsEditor from "./ProjectDetailsEditor";
 
 function Icon({ name, size = 20, ...props }) {
   if (name === "check") return <Checkmark size={size} {...props} />;
@@ -625,6 +626,7 @@ function ProjectDetail({ project, onUpdate }) {
               <path d="m6 9 6 6 6-6" />
             </svg>
           </button>
+          <ProjectDetailsEditor project={p} onUpdate={onUpdate} />
           <span className="detail-updated">
             Updated {formatDate(p.updated)}
           </span>
@@ -793,70 +795,63 @@ function ProjectDetail({ project, onUpdate }) {
             </span>
             <h2 id="project-info-title">Project details</h2>
           </div>
-          <div className="contacts-grid" aria-label="Project team and sample">
+          <div className="project-details-content">
             <ProjectTeam
               project={p}
               onUpdate={onUpdate}
-              icon={<Icon name="team" size={24} />}
+              icon={<Icon name="team" size={22} />}
             />
-            <div className="contact-card">
-              <Icon name="user" size={24} />
-              <div>
-                <label className="contact-label" htmlFor="primary-scientist">
-                  PRIMARY SCIENTIST
-                </label>
-                <select
-                  id="primary-scientist"
-                  className="contact-field"
-                  value={p.primaryScientist}
-                  onChange={(e) =>
-                    onUpdate({ primaryScientist: e.target.value })
-                  }
-                >
-                  {scientists.map((scientist) => (
-                    <option key={scientist.id} value={scientist.id}>
-                      {scientist.name} - {scientist.role}
-                    </option>
-                  ))}
-                </select>
+            <section className="project-details-section" aria-labelledby="project-contacts-title">
+              <h3 id="project-contacts-title">Contacts</h3>
+              <div className="project-contact-fields">
+                <div className="project-detail-field">
+                  <label htmlFor="primary-scientist">Primary scientist</label>
+                  <select
+                    id="primary-scientist"
+                    aria-describedby="primary-scientist-role"
+                    value={p.primaryScientist}
+                    onChange={(e) => onUpdate({ primaryScientist: e.target.value })}
+                  >
+                    {[...new Set(scientists.map(scientist => scientist.role))].map(role => (
+                      <optgroup key={role} label={role}>
+                        {scientists.filter(scientist => scientist.role === role).map(scientist => (
+                          <option key={scientist.id} value={scientist.id}>{scientist.name}</option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                  <span id="primary-scientist-role" className="project-field-help">
+                    {scientists.find(scientist => scientist.id === p.primaryScientist)?.role}
+                  </span>
+                </div>
+                <div className="project-detail-field">
+                  <label htmlFor="external-contact">External contact</label>
+                  <input
+                    id="external-contact"
+                    type="text"
+                    value={p.externalContact}
+                    placeholder="Enter contact name"
+                    onChange={(e) => onUpdate({ externalContact: e.target.value })}
+                  />
+                </div>
               </div>
-            </div>
-            <div className="contact-card">
-              <Icon name="user" size={24} />
-              <div>
-                <label className="contact-label" htmlFor="external-contact">
-                  EXTERNAL CONTACT
-                </label>
-                <input
-                  id="external-contact"
-                  className="contact-field"
-                  type="text"
-                  value={p.externalContact}
-                  placeholder="Enter contact name"
-                  onChange={(e) =>
-                    onUpdate({ externalContact: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-            <div className="contact-card">
-              <Icon name="box" size={24} />
-              <div>
-                <label className="contact-label" htmlFor="sample-status">
-                  SAMPLE STATUS
-                </label>
-                <select
-                  id="sample-status"
-                  value={p.sample}
-                  onChange={(e) => onUpdate({ sample: e.target.value })}
-                >
-                  <option>Awaiting Shipment to CHESS</option>
-                  <option>At CHESS</option>
-                  <option>In Analysis</option>
-                  <option>Returned to Client</option>
-                  <option>Donated to Thrift Store</option>
-                </select>
-              </div>
+            </section>
+            <div className="project-details-section project-detail-field">
+              <label htmlFor="sample-status" className="sample-status-label">
+                <Icon name="box" size={18} />
+                Sample status
+              </label>
+              <select
+                id="sample-status"
+                value={p.sample}
+                onChange={(e) => onUpdate({ sample: e.target.value })}
+              >
+                <option>Awaiting Shipment to CHESS</option>
+                <option>At CHESS</option>
+                <option>In Analysis</option>
+                <option>Returned to Client</option>
+                <option>Donated to Thrift Store</option>
+              </select>
             </div>
           </div>
         </section>
@@ -1098,10 +1093,6 @@ function App() {
             </svg>
             <span>{theme === "dark" ? "Light mode" : "Dark mode"}</span>
           </button>
-          <span className="workspace-label">
-            <span />
-            MSN-C workspace
-          </span>
           <span className="header-avatar" title={currentUser.name}>
             KN
           </span>
