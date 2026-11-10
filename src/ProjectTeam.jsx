@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Checkmark from "./Checkmark";
 import SortableHeader from "./SortableHeader";
+import { scientists } from "./data";
 
 const teamCollator = new Intl.Collator(undefined, {
   sensitivity: "base",
@@ -39,6 +40,11 @@ export default function ProjectTeam({ project, onUpdate, icon }) {
     }));
   }
   const [isOpen, setIsOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(
+    () => window.matchMedia("(min-width: 1001px)").matches,
+  );
+  const [headerActions, setHeaderActions] = useState(null);
+  const Panel = isDesktop ? "aside" : "dialog";
   const [isAdding, setIsAdding] = useState(false);
   const addButtonRef = useRef(null);
   const triggerRef = useRef(null);
@@ -47,6 +53,7 @@ export default function ProjectTeam({ project, onUpdate, icon }) {
   const confirmationRef = useRef(null);
   const actionTriggerRef = useRef(null);
   const actionConfirmedRef = useRef(false);
+  const hadDraftRef = useRef(false);
   const [fullName, setFullName] = useState("");
   const [company, setCompany] = useState("");
   const [message, setMessage] = useState("");
@@ -60,10 +67,12 @@ export default function ProjectTeam({ project, onUpdate, icon }) {
 
   useEffect(() => {
     if (isAdding || editingId) {
+      hadDraftRef.current = true;
       nameRef.current?.focus();
       nameRef.current?.scrollIntoView({ block: "nearest" });
-    } else if (isOpen) {
-      addButtonRef.current?.focus();
+    } else if (hadDraftRef.current) {
+      hadDraftRef.current = false;
+      if (isDesktop || isOpen) addButtonRef.current?.focus();
     }
   }, [isAdding, editingId]);
 
@@ -79,22 +88,28 @@ export default function ProjectTeam({ project, onUpdate, icon }) {
   }
 
   useEffect(() => {
-    if (!isOpen) return;
-    document.body.classList.add("team-panel-open");
-    function handleEscape(event) {
-      if (event.key === "Escape" && !document.querySelector("dialog[open]")) {
-        event.preventDefault();
-        closeSidebar();
-      }
+    setHeaderActions(document.getElementById("project-team-actions"));
+    document.body.classList.add("project-team-layout");
+    const media = window.matchMedia("(min-width: 1001px)");
+    function updateLayout(event) {
+      setIsDesktop(event.matches);
+      setIsOpen(false);
     }
-    document.addEventListener("keydown", handleEscape);
+    media.addEventListener("change", updateLayout);
     return () => {
-      document.body.classList.remove("team-panel-open");
-      document.removeEventListener("keydown", handleEscape);
+      document.body.classList.remove("project-team-layout");
+      media.removeEventListener("change", updateLayout);
     };
-  }, [isOpen]);
+  }, []);
+
+  useEffect(() => {
+    if (isDesktop) return;
+    if (isOpen && !sidebarRef.current.open) sidebarRef.current.showModal();
+    else if (!isOpen && sidebarRef.current.open) sidebarRef.current.close();
+  }, [isOpen, isDesktop]);
 
   function closeSidebar() {
+    if (!isDesktop && sidebarRef.current?.open) sidebarRef.current.close();
     setIsOpen(false);
     resetEditor();
     setMessage("");
@@ -243,47 +258,40 @@ export default function ProjectTeam({ project, onUpdate, icon }) {
 
   return (
     <>
-      <button
-        type="button"
-        className="team-trigger"
-        aria-label="Manage project team"
-        ref={triggerRef}
-        aria-expanded={isOpen}
-        aria-controls="project-team-sidebar"
-        onClick={() => (isOpen ? closeSidebar() : openSidebar())}
-      >
-        {icon}
-        <span className="team-trigger-text">
-          <span className="team-trigger-label">Team members</span>
-          <strong>
-            {members.length
-              ? `${members.length} ${members.length === 1 ? "person" : "people"}`
-              : "No team members"}
-          </strong>
-          <span className="team-trigger-action">Manage team</span>
-        </span>
-        <svg
-          className="team-trigger-arrow"
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.7"
-          aria-hidden="true"
-        >
-          <path d="m9 5 7 7-7 7" />
-        </svg>
-      </button>
+      {headerActions &&
+        createPortal(
+          <button
+            type="button"
+            className="team-mobile-trigger icon-button"
+            aria-label="Open project team and contacts"
+            ref={triggerRef}
+            aria-haspopup="dialog"
+            aria-expanded={isOpen}
+            aria-controls="project-team-sidebar"
+            title="Project team and contacts"
+            onClick={openSidebar}
+          >
+            {icon}
+          </button>,
+          headerActions,
+        )}
       {createPortal(
-        <aside
+        <Panel
           ref={sidebarRef}
           id="project-team-sidebar"
           className="team-sidebar"
           aria-labelledby="team-sidebar-title"
-          data-open={isOpen}
-          inert={!isOpen}
-          aria-hidden={!isOpen}
+          data-open={isDesktop || isOpen}
+          aria-modal={isDesktop ? undefined : true}
+          onClose={() => {
+            setIsOpen(false);
+            resetEditor();
+            setMessage("");
+          }}
+          onClick={(event) => {
+            if (!isDesktop && event.target === event.currentTarget)
+              closeSidebar();
+          }}
         >
           <header className="team-sidebar-header">
             <div>
@@ -297,7 +305,7 @@ export default function ProjectTeam({ project, onUpdate, icon }) {
             </div>
             <button
               type="button"
-              className="icon-button"
+              className="icon-button team-panel-close"
               aria-label="Close team sidebar"
               onClick={closeSidebar}
             >
@@ -315,28 +323,66 @@ export default function ProjectTeam({ project, onUpdate, icon }) {
             </button>
           </header>
           <div className="team-sidebar-scroll">
+            <section
+              className="team-contacts"
+              aria-labelledby="project-contacts-title"
+            >
+              <h3 id="project-contacts-title">Contacts</h3>
+              <div className="project-contact-fields">
+                <div className="project-detail-field">
+                  <label htmlFor="primary-scientist">Primary scientist</label>
+                  <select
+                    id="primary-scientist"
+                    aria-describedby="primary-scientist-role"
+                    value={project.primaryScientist}
+                    onChange={(e) =>
+                      onUpdate({ primaryScientist: e.target.value })
+                    }
+                  >
+                    {[
+                      ...new Set(scientists.map((scientist) => scientist.role)),
+                    ].map((role) => (
+                      <optgroup key={role} label={role}>
+                        {scientists
+                          .filter((scientist) => scientist.role === role)
+                          .map((scientist) => (
+                            <option key={scientist.id} value={scientist.id}>
+                              {scientist.name}
+                            </option>
+                          ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                  <span
+                    id="primary-scientist-role"
+                    className="project-field-help"
+                  >
+                    {
+                      scientists.find(
+                        (scientist) =>
+                          scientist.id === project.primaryScientist,
+                      )?.role
+                    }
+                  </span>
+                </div>
+                <div className="project-detail-field">
+                  <label htmlFor="external-contact">External contact</label>
+                  <input
+                    id="external-contact"
+                    type="text"
+                    value={project.externalContact}
+                    placeholder="Enter contact name"
+                    onChange={(e) =>
+                      onUpdate({ externalContact: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+            </section>
+
             <div className="team-sidebar-body">
               <div className="team-table-toolbar">
-                <div className="team-mobile-sort">
-                  <label htmlFor="team-sort">Sort by</label>
-                  <select
-                    id="team-sort"
-                    value={`${sort.field}:${sort.direction}`}
-                    onChange={(event) => {
-                      const [field, direction] = event.target.value.split(":");
-                      setSort({ field, direction });
-                    }}
-                  >
-                    <option value="fullName:ascending">
-                      Full name (A to Z)
-                    </option>
-                    <option value="fullName:descending">
-                      Full name (Z to A)
-                    </option>
-                    <option value="company:ascending">Company (A to Z)</option>
-                    <option value="company:descending">Company (Z to A)</option>
-                  </select>
-                </div>
+                <h3 className="team-members-title">Team members</h3>
                 <button
                   ref={addButtonRef}
                   type="button"
@@ -359,6 +405,24 @@ export default function ProjectTeam({ project, onUpdate, icon }) {
                     <path d="M12 5v14M5 12h14" />
                   </svg>
                 </button>
+              </div>
+              <div className="team-mobile-sort">
+                <label htmlFor="team-sort">Sort by</label>
+                <select
+                  id="team-sort"
+                  value={`${sort.field}:${sort.direction}`}
+                  onChange={(event) => {
+                    const [field, direction] = event.target.value.split(":");
+                    setSort({ field, direction });
+                  }}
+                >
+                  <option value="fullName:ascending">Full name (A to Z)</option>
+                  <option value="fullName:descending">
+                    Full name (Z to A)
+                  </option>
+                  <option value="company:ascending">Company (A to Z)</option>
+                  <option value="company:descending">Company (Z to A)</option>
+                </select>
               </div>
               <form className="team-table-frame" onSubmit={saveMemberRow}>
                 <table
@@ -503,7 +567,7 @@ export default function ProjectTeam({ project, onUpdate, icon }) {
               </p>
             </div>
           </div>
-        </aside>,
+        </Panel>,
         document.body,
       )}
       <dialog
@@ -516,7 +580,7 @@ export default function ProjectTeam({ project, onUpdate, icon }) {
         }}
         onClose={() => {
           setPendingAction(null);
-          if (!isOpen) return;
+          if (!isDesktop && !isOpen) return;
           const target = actionTriggerRef.current;
           if (
             !actionConfirmedRef.current &&

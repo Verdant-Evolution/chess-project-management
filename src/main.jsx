@@ -721,6 +721,11 @@ function ProjectDetail({ project, onUpdate }) {
   }
   return (
     <>
+      <ProjectTeam
+        project={p}
+        onUpdate={onUpdate}
+        icon={<Icon name="team" size={20} />}
+      />
       <a className="back-link" href="#/">
         <Icon name="back" size={15} />
         Back to projects
@@ -907,93 +912,30 @@ function ProjectDetail({ project, onUpdate }) {
           </div>
         </section>
         <section
-          className="requirements-card project-info-card"
-          aria-labelledby="project-info-title"
+          className="requirements-card sample-status-card"
+          aria-labelledby="sample-status-title"
         >
           <div className="card-heading">
             <span className="icon-tile small">
-              <Icon name="team" size={19} />
+              <Icon name="box" size={19} />
             </span>
-            <h2 id="project-info-title">Project details</h2>
+            <h2 id="sample-status-title">Sample status</h2>
           </div>
-          <div className="project-details-content">
-            <ProjectTeam
-              project={p}
-              onUpdate={onUpdate}
-              icon={<Icon name="team" size={22} />}
-            />
-            <section
-              className="project-details-section"
-              aria-labelledby="project-contacts-title"
+          <div className="project-detail-field sample-status-field">
+            <label className="sr-only" htmlFor="sample-status">
+              Sample status
+            </label>
+            <select
+              id="sample-status"
+              value={p.sample}
+              onChange={(event) => onUpdate({ sample: event.target.value })}
             >
-              <h3 id="project-contacts-title">Contacts</h3>
-              <div className="project-contact-fields">
-                <div className="project-detail-field">
-                  <label htmlFor="primary-scientist">Primary scientist</label>
-                  <select
-                    id="primary-scientist"
-                    aria-describedby="primary-scientist-role"
-                    value={p.primaryScientist}
-                    onChange={(e) =>
-                      onUpdate({ primaryScientist: e.target.value })
-                    }
-                  >
-                    {[
-                      ...new Set(scientists.map((scientist) => scientist.role)),
-                    ].map((role) => (
-                      <optgroup key={role} label={role}>
-                        {scientists
-                          .filter((scientist) => scientist.role === role)
-                          .map((scientist) => (
-                            <option key={scientist.id} value={scientist.id}>
-                              {scientist.name}
-                            </option>
-                          ))}
-                      </optgroup>
-                    ))}
-                  </select>
-                  <span
-                    id="primary-scientist-role"
-                    className="project-field-help"
-                  >
-                    {
-                      scientists.find(
-                        (scientist) => scientist.id === p.primaryScientist,
-                      )?.role
-                    }
-                  </span>
-                </div>
-                <div className="project-detail-field">
-                  <label htmlFor="external-contact">External contact</label>
-                  <input
-                    id="external-contact"
-                    type="text"
-                    value={p.externalContact}
-                    placeholder="Enter contact name"
-                    onChange={(e) =>
-                      onUpdate({ externalContact: e.target.value })
-                    }
-                  />
-                </div>
-              </div>
-            </section>
-            <div className="project-details-section project-detail-field">
-              <label htmlFor="sample-status" className="sample-status-label">
-                <Icon name="box" size={18} />
-                Sample status
-              </label>
-              <select
-                id="sample-status"
-                value={p.sample}
-                onChange={(e) => onUpdate({ sample: e.target.value })}
-              >
-                <option>Awaiting Shipment to CHESS</option>
-                <option>At CHESS</option>
-                <option>In Analysis</option>
-                <option>Returned to Client</option>
-                <option>Donated to Thrift Store</option>
-              </select>
-            </div>
+              <option>Awaiting Shipment to CHESS</option>
+              <option>At CHESS</option>
+              <option>In Analysis</option>
+              <option>Returned to Client</option>
+              <option>Donated to Thrift Store</option>
+            </select>
           </div>
         </section>
       </div>
@@ -1234,6 +1176,7 @@ function App() {
             </svg>
             <span>{theme === "dark" ? "Light mode" : "Dark mode"}</span>
           </button>
+          <div id="project-team-actions" />
           <span className="header-avatar" title={currentUser.name}>
             KN
           </span>

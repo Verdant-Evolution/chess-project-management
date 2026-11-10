@@ -25,7 +25,7 @@ function BranchConnectors({ branches, stage }) {
     const map = svgRef.current?.closest(".workflow-map");
     if (!map) return;
     function measure() {
-      if (!window.matchMedia("(min-width: 1101px)").matches) {
+      if (!map.querySelector(".timeline-scroll")?.getClientRects().length) {
         setGeometry(null);
         return;
       }

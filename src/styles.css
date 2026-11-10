@@ -254,6 +254,7 @@ p {
   font-weight: 700;
 }
 main {
+  container: project-content / inline-size;
   width: 100%;
   max-width: 1530px;
   margin: 0 auto;
@@ -1044,29 +1045,12 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   width: 20px;
   border-radius: 5px;
 }
-.project-info-card {
-  container-type: inline-size;
-}
 .edit-project-details.button {
   min-height: var(--control-height);
   padding: 0 14px;
   font-size: var(--control-font);
   border-radius: var(--control-radius);
   line-height: 1.3;
-}
-.project-details-content {
-  margin-top: 20px;
-}
-.project-details-section {
-  border-top: 1px solid var(--border);
-  margin-top: 20px;
-  padding-top: 20px;
-}
-.project-details-section h3 {
-  margin: 0 0 14px;
-  color: var(--text);
-  font-size: 14px;
-  font-weight: 600;
 }
 .project-contact-fields {
   display: grid;
@@ -1103,19 +1087,6 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.5;
-}
-.sample-status-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.sample-status-label svg {
-  color: var(--muted);
-}
-@container (min-width: 520px) {
-  .project-contact-fields {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 .project-dialog {
   padding: 0;
@@ -1729,7 +1700,7 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
     grid-template-columns: minmax(0, 1fr);
   }
 }
-@media (max-width: 1100px) {
+@container project-content (max-width: 900px) {
   .timeline {
     display: block;
     min-width: 0;
@@ -1918,7 +1889,7 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
 .danger:hover {
   background: var(--danger-hover);
 }
-@media (min-width: 1101px) {
+@container project-content (min-width: 901px) {
   .has-branches .timeline li:nth-child(4):before,
   .branch-step-0:before {
     display: none;
@@ -1928,7 +1899,7 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
     display: none;
   }
 }
-@media (max-width: 1100px) {
+@container project-content (max-width: 900px) {
   .workflow-map {
     padding: 0;
   }
@@ -2008,7 +1979,7 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
 .mobile-beamtime-workflow {
   display: none;
 }
-@media (max-width: 1100px) {
+@container project-content (max-width: 900px) {
   .workflow-map > .timeline-scroll,
   .workflow-map > .extra-beamtimes {
     display: none;
@@ -2179,68 +2150,24 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
     padding-top: 12px;
   }
 }
-.team-trigger {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  min-width: 0;
-  padding: 14px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--surface-muted);
-  color: var(--text);
-  text-align: left;
+#project-team-actions {
+  display: none;
 }
-.team-trigger:hover {
-  background: var(--surface-hover);
-  border-color: var(--border-strong);
-}
-.team-trigger > svg:first-child {
+.team-mobile-trigger.icon-button {
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
   color: var(--purple);
-}
-.team-trigger-text {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 4px 12px;
-  flex: 1;
-  min-width: 0;
-}
-.team-trigger-label {
-  grid-column: 1;
-  font-size: 14px;
-  font-weight: 600;
-}
-.team-trigger-text strong {
-  grid-column: 1;
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 400;
-}
-.team-trigger-action {
-  grid-column: 2;
-  grid-row: 1 / 3;
-  align-self: center;
-  color: var(--purple);
-  font-size: 13px;
-}
-.team-trigger-arrow {
-  color: var(--purple);
-}
-@media (max-width: 380px) {
-  .team-trigger-action {
-    display: none;
-  }
 }
 .app-shell {
-  transition: margin-right 280ms ease;
   min-width: 0;
 }
-body.team-panel-open .app-shell {
-  margin-right: 480px;
-}
-body.team-panel-open .workspace-label {
-  display: none;
+@media (min-width: 1001px) {
+  body.project-team-layout .app-shell {
+    margin-right: 480px;
+  }
+  .team-panel-close {
+    display: none;
+  }
 }
 .team-sidebar {
   position: fixed;
@@ -2497,37 +2424,28 @@ th[aria-sort="descending"] .table-sort-button svg {
   overflow-wrap: anywhere;
 }
 @media (max-width: 1000px) {
-  .app-shell {
-    height: 100dvh;
-    min-height: 0;
-    overflow-y: auto;
-    transition:
-      height 280ms ease,
-      margin-right 280ms ease;
-  }
-  .app-shell > main,
-  .app-shell > .site-header,
-  .app-shell > .site-footer {
-    flex-shrink: 0;
-  }
-  body.team-panel-open .app-shell {
-    margin-right: 0;
-    height: 42dvh;
-    min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
+  #project-team-actions:not(:empty) {
+    display: block;
   }
   .team-sidebar {
-    inset: auto 0 0;
-    width: 100%;
-    height: 58dvh;
-    border-radius: 18px 18px 0 0;
-    border-bottom: 0;
-    transform: translateY(100%);
-    box-shadow: 0 -8px 32px var(--shadow);
+    inset: 0;
+    margin: auto;
+    width: calc(100% - 24px);
+    max-width: 560px;
+    height: min(820px, calc(100dvh - 24px));
+    max-height: calc(100dvh - 24px);
+    padding: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: 16px;
+    transform: none;
+    box-shadow: 0 12px 48px var(--shadow);
+  }
+  .team-sidebar::backdrop {
+    background: var(--backdrop);
+    backdrop-filter: blur(3px);
   }
   .team-sidebar[data-open="true"] {
-    transform: translateY(0);
+    transform: none;
   }
   .team-sidebar-header {
     padding: 14px 18px;
@@ -2545,7 +2463,7 @@ th[aria-sort="descending"] .table-sort-button svg {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 0;
+    margin-bottom: 12px;
     flex: 1;
     min-width: 0;
   }
@@ -2739,5 +2657,44 @@ button:disabled:hover {
     color: var(--text);
     font-size: 16px;
     cursor: pointer;
+  }
+}
+
+.team-contacts {
+  margin: 0;
+  padding: 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.team-contacts h3,
+.team-members-title {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+}
+.team-contacts h3 {
+  margin-bottom: 16px;
+}
+.team-table-toolbar {
+  justify-content: space-between;
+}
+.sample-status-field {
+  margin-top: 20px;
+}
+body:has(dialog.team-sidebar[open]) {
+  overflow: hidden;
+}
+@media (max-width: 580px) {
+  body.project-team-layout .header-avatar {
+    display: none;
+  }
+}
+
+dialog.team-sidebar:not([open]) {
+  display: none;
+}
+
+@container project-content (max-width: 700px) {
+  .requirements-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
