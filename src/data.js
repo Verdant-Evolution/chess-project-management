@@ -5,7 +5,7 @@ export const SITE_TITLE = "Materials Solutions Network @ CHESS Dashboard";
 
 export const scientists = [
   { id: "kelly-nygren", name: "Kelly Nygren", role: "Staff Scientist" },
-  { id: "sven-gustafsen", name: "Sven Gustafsen", role: "Staff Scientist" },
+  { id: "sven-gustafson", name: "Sven Gustafson", role: "Staff Scientist" },
   { id: "chris-budrow", name: "Chris Budrow", role: "Visiting Scientist" },
 ];
 
