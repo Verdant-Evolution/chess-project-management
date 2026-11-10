@@ -331,28 +331,45 @@ export default function ProjectTeam({ project, onUpdate, icon }) {
               <div className="project-contact-fields">
                 <div className="project-detail-field">
                   <label htmlFor="primary-scientist">Primary scientist</label>
-                  <select
-                    id="primary-scientist"
-                    aria-describedby="primary-scientist-role"
-                    value={project.primaryScientist}
-                    onChange={(e) =>
-                      onUpdate({ primaryScientist: e.target.value })
-                    }
-                  >
-                    {[
-                      ...new Set(scientists.map((scientist) => scientist.role)),
-                    ].map((role) => (
-                      <optgroup key={role} label={role}>
-                        {scientists
-                          .filter((scientist) => scientist.role === role)
-                          .map((scientist) => (
-                            <option key={scientist.id} value={scientist.id}>
-                              {scientist.name}
-                            </option>
-                          ))}
-                      </optgroup>
-                    ))}
-                  </select>
+                  <div className="select-with-chevron">
+                    <select
+                      id="primary-scientist"
+                      aria-describedby="primary-scientist-role"
+                      value={project.primaryScientist}
+                      onChange={(e) =>
+                        onUpdate({ primaryScientist: e.target.value })
+                      }
+                    >
+                      {[
+                        ...new Set(
+                          scientists.map((scientist) => scientist.role),
+                        ),
+                      ].map((role) => (
+                        <optgroup key={role} label={role}>
+                          {scientists
+                            .filter((scientist) => scientist.role === role)
+                            .map((scientist) => (
+                              <option key={scientist.id} value={scientist.id}>
+                                {scientist.name}
+                              </option>
+                            ))}
+                        </optgroup>
+                      ))}
+                    </select>
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.7"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="m6 9 6 6 6-6" />
+                    </svg>
+                  </div>
                   <span
                     id="primary-scientist-role"
                     className="project-field-help"

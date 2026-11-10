@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   STORAGE_KEY,
@@ -1053,6 +1053,20 @@ function App() {
   const [announcement, setAnnouncement] = useState("");
   const dialogRef = useRef(null);
   const mainRef = useRef(null);
+  const headerRef = useRef(null);
+  useLayoutEffect(() => {
+    const header = headerRef.current;
+    const updateHeight = () => {
+      document.documentElement.style.setProperty(
+        "--site-header-height",
+        `${header.getBoundingClientRect().height}px`,
+      );
+    };
+    updateHeight();
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, []);
   const projectId = /^#\/projects\/(\d+)$/.exec(route)?.[1];
   const project = projects.find((p) => p.id === Number(projectId));
   const isDashboard = !route || route === "#/" || route === "#";
@@ -1140,7 +1154,7 @@ function App() {
       >
         Skip to content
       </a>
-      <header className="site-header">
+      <header ref={headerRef} className="site-header">
         <a href="#/" className="app-title-link">
           <HeaderTitle className="app-title">{SITE_TITLE}</HeaderTitle>
         </a>

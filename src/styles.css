@@ -51,6 +51,7 @@
   --control-font: 14px;
   --field-font: 16px;
   --on-danger: #ffffff;
+  --site-header-height: 72px;
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
@@ -129,6 +130,9 @@
 * {
   box-sizing: border-box;
 }
+html {
+  scroll-padding-top: calc(var(--site-header-height) + 16px);
+}
 body {
   margin: 0;
 }
@@ -202,6 +206,9 @@ p {
   flex-direction: column;
 }
 .site-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
   min-height: 72px;
   display: flex;
   align-items: center;
@@ -1082,6 +1089,22 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
 }
 .project-detail-field select {
   cursor: pointer;
+}
+.select-with-chevron {
+  position: relative;
+  min-width: 0;
+}
+.select-with-chevron select {
+  appearance: none;
+  padding-right: 38px;
+}
+.select-with-chevron > svg {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  pointer-events: none;
 }
 .project-field-help {
   color: var(--muted);
@@ -2162,8 +2185,13 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   min-width: 0;
 }
 @media (min-width: 1001px) {
-  body.project-team-layout .app-shell {
+  body.project-team-layout .app-shell > main {
+    width: calc(100% - 480px);
+    margin-left: 0;
     margin-right: 480px;
+  }
+  body.project-team-layout .site-footer {
+    margin-right: calc(480px + 5.5%);
   }
   .team-panel-close {
     display: none;
@@ -2172,7 +2200,7 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
 .team-sidebar {
   position: fixed;
   z-index: 20;
-  inset: 12px 12px 12px auto;
+  inset: calc(var(--site-header-height) + 12px) 12px 12px auto;
   width: 456px;
   display: flex;
   flex-direction: column;
@@ -2428,12 +2456,12 @@ th[aria-sort="descending"] .table-sort-button svg {
     display: block;
   }
   .team-sidebar {
-    inset: 0;
+    inset: calc(var(--site-header-height) + 12px) 0 12px;
     margin: auto;
     width: calc(100% - 24px);
     max-width: 560px;
-    height: min(820px, calc(100dvh - 24px));
-    max-height: calc(100dvh - 24px);
+    height: min(820px, calc(100dvh - var(--site-header-height) - 24px));
+    max-height: calc(100dvh - var(--site-header-height) - 24px);
     padding: 0;
     border: 1px solid var(--border-strong);
     border-radius: 16px;
@@ -2661,9 +2689,15 @@ button:disabled:hover {
 }
 
 .team-contacts {
+  container: team-contacts / inline-size;
   margin: 0;
   padding: 20px 16px;
   border-bottom: 1px solid var(--border);
+}
+@container team-contacts (min-width: 360px) {
+  .project-contact-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 .team-contacts h3,
 .team-members-title {
