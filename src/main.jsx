@@ -12,6 +12,7 @@ import {
   canToggleMilestone,
   getClearedProjectChecks,
   milestones,
+  beamtimeMilestones,
   requirements,
   loadProjects,
   today,
@@ -637,7 +638,7 @@ function Dashboard({ projects, onNew, onDelete }) {
 function ProjectDetail({ project, onUpdate }) {
   const p = project;
   const beamtimes = p.beamtimes ?? [];
-  const unfinishedBeamtimes = beamtimes.some((beamtime) => beamtime.stage < 3);
+  const unfinishedBeamtimes = beamtimes.some((beamtime) => beamtime.stage < 4);
   const undoDialogRef = useRef(null);
   const statusDialogRef = useRef(null);
   const [pendingUndo, setPendingUndo] = useState(null);
@@ -670,7 +671,7 @@ function ProjectDetail({ project, onUpdate }) {
     }
     if (index === 6) {
       updateChecks(
-        { stage: p.stage >= 6 ? 5 : isMilestoneComplete(p, 7) ? 7 : 6 },
+        { stage: p.stage >= 6 ? 5 : 6, primaryAnalysisComplete: false },
         undoLabel,
       );
       return;
@@ -787,7 +788,8 @@ function ProjectDetail({ project, onUpdate }) {
                   0,
                 )}
             </strong>{" "}
-            / {milestones.length + beamtimes.length * 4} complete
+            / {milestones.length + beamtimes.length * beamtimeMilestones.length}{" "}
+            complete
           </span>
         </div>
         <BeamtimeBranches
@@ -843,7 +845,7 @@ function ProjectDetail({ project, onUpdate }) {
                         onClick={() => toggleMilestone(index)}
                         disabled={!canToggleMilestone(p, index)}
                         className="milestone-button"
-                        aria-label={`${milestone}: ${isMilestoneComplete(p, index) ? "complete" : "incomplete"}. ${isMilestoneComplete(p, index) ? (index === 7 ? "Undo analysis for Beamtime 1" : index === 6 ? "Undo Intermediate Data" : "Undo this and later milestones") : index === 8 && unfinishedBeamtimes ? "Complete data analysis for every beamtime first" : !canToggleMilestone(p, index) ? `Complete ${milestones[index === 7 ? 5 : index - 1]} first` : "Complete milestone"}.`}
+                        aria-label={`${milestone}: ${isMilestoneComplete(p, index) ? "complete" : "incomplete"}. ${isMilestoneComplete(p, index) ? (index === 7 ? "Undo analysis for Beamtime 1" : index === 6 ? "Undo Intermediate Data" : "Undo this and later milestones") : index === 8 && unfinishedBeamtimes ? "Complete data analysis for every beamtime first" : !canToggleMilestone(p, index) ? `Complete ${milestones[index - 1]} first` : "Complete milestone"}.`}
                         aria-pressed={isMilestoneComplete(p, index)}
                       >
                         <span className="milestone-dot">
@@ -1109,6 +1111,7 @@ function App() {
         stage: -1,
         updated: today(),
         protected: containsProtectedData,
+        workflowVersion: 3,
         requirements: [false, false, false],
         feasibility: false,
         defense: false,

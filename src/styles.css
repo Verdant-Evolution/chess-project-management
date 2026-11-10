@@ -1843,9 +1843,6 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   height: 25px;
   text-align: center;
 }
-.branch-step-3 {
-  grid-column: 5;
-}
 .branch-step:before {
   content: "";
   position: absolute;
@@ -1855,9 +1852,6 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   right: 50%;
   background: var(--line);
 }
-.branch-step-3:before {
-  left: -150%;
-}
 .branch-step.complete:before {
   background: var(--purple);
 }
@@ -1866,9 +1860,6 @@ button.milestone-button:not(:disabled):hover .milestone-dot {
   top: 108px;
   bottom: 203px;
   border-left: 2px dotted var(--guide);
-}
-.intermediate-guide {
-  left: calc(52px + (100% - 104px) * 0.72222222);
 }
 .collected-guide {
   left: 50%;
@@ -2730,5 +2721,16 @@ dialog.team-sidebar:not([open]) {
 @container project-content (max-width: 700px) {
   .requirements-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@container project-content (min-width: 901px) {
+  .branch-step-3 .milestone-label {
+    top: auto;
+    bottom: calc(100% + 38px);
+  }
+  .branch-step-3 .milestone-button:before {
+    top: auto;
+    bottom: calc(100% + 7px);
   }
 }

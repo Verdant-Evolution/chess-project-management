@@ -6,7 +6,7 @@ import {
   canToggleMilestone,
 } from "./data";
 
-const primaryMilestoneIndexes = [3, 4, 5, 7];
+const primaryMilestoneIndexes = [3, 4, 5, 6, 7];
 
 function MilestoneButton({ label, checked, disabled, onClick }) {
   return (
@@ -115,9 +115,13 @@ export default function MobileBeamtimeWorkflow({
                 <span className="beamtime-summary-heading">
                   <strong>{label}</strong>
                   <span
-                    className={completed === 4 ? "beamtime-count-complete" : ""}
+                    className={
+                      completed === beamtimeMilestones.length
+                        ? "beamtime-count-complete"
+                        : ""
+                    }
                   >
-                    {completed}/4 complete
+                    {completed}/{beamtimeMilestones.length} complete
                   </span>
                   <svg
                     width="18"
@@ -196,14 +200,8 @@ export default function MobileBeamtimeWorkflow({
       </section>
       <section
         className="mobile-shared-checkpoints mobile-shared-deliverables"
-        aria-label="Shared data milestones"
+        aria-label="Project delivery"
       >
-        <MilestoneButton
-          label="Intermediate Data"
-          checked={project.stage >= 6}
-          disabled={project.stage < 5}
-          onClick={() => onPrimaryToggle(6)}
-        />
         <MilestoneButton
           label="Final Deliverable"
           checked={project.stage >= 8}

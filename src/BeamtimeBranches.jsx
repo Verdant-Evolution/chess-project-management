@@ -49,7 +49,7 @@ function BranchConnectors({ branches, stage }) {
       );
       const analysisDots = [
         ...map.querySelectorAll(
-          ".beamtime-branch .branch-step-3 .milestone-dot",
+          ".beamtime-branch .branch-step-4 .milestone-dot",
         ),
       ];
       const dots = [
@@ -82,7 +82,7 @@ function BranchConnectors({ branches, stage }) {
           return {
             id: branches[index].id,
             scheduled: stage >= 2 && branches[index].stage >= 0,
-            delivered: stage === 8 && branches[index].stage === 3,
+            delivered: stage === 8 && branches[index].stage === 4,
             deliveryPath: `M ${analysis.x + analysis.radius - 0.5} ${analysis.y} H ${final.x - deliveryRadius} A ${deliveryRadius} ${deliveryRadius} 0 0 0 ${final.x} ${analysis.y - deliveryRadius} V ${final.y + final.radius - 0.5}`,
             path: `M ${startX} ${start.y} H ${junctionX - radius} A ${radius} ${radius} 0 0 1 ${junctionX} ${start.y + radius} V ${target.y - radius} A ${radius} ${radius} 0 0 0 ${junctionX + radius} ${target.y} H ${target.x - target.radius + 0.5}`,
           };
@@ -228,10 +228,6 @@ export default function BeamtimeBranches({
             <BranchConnectors branches={branches} stage={project.stage} />
             <span
               className="workflow-shared-guide collected-guide"
-              aria-hidden="true"
-            />
-            <span
-              className="workflow-shared-guide intermediate-guide"
               aria-hidden="true"
             />
           </>

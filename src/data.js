@@ -84,23 +84,25 @@ export const beamtimeMilestones = [
   "Beamtime Scheduled",
   "Data Collected",
   "Preliminary Data",
+  "Intermediate Data",
   "Data Analysis Complete",
 ];
 
 export function isMilestoneComplete(project, index) {
   return index === 7
-    ? (project.primaryAnalysisComplete ?? project.stage >= 7)
+    ? project.stage >= 6 &&
+        (project.primaryAnalysisComplete ?? project.stage >= 7)
     : index <= project.stage;
 }
 
 export function canToggleMilestone(project, index) {
   if (index === 1) return false;
-  if (index === 7) return project.stage >= 5;
+  if (index === 7) return project.stage >= 6;
   if (index === 8) {
     return (
       project.stage >= 7 &&
       isMilestoneComplete(project, 7) &&
-      (project.beamtimes ?? []).every((beamtime) => beamtime.stage === 3)
+      (project.beamtimes ?? []).every((beamtime) => beamtime.stage === 4)
     );
   }
   return index <= project.stage + 1;
@@ -115,7 +117,7 @@ export function getClearedProjectChecks(before, after) {
     )
       return;
     cleared.push(
-      [3, 4, 5, 7].includes(index)
+      [3, 4, 5, 6, 7].includes(index)
         ? `Beamtime 1: ${label}`
         : index === 1
           ? "Measurement feasibility milestone"
@@ -197,6 +199,7 @@ export const initialProjects = [
   },
 ].map((project) => ({
   ...project,
+  workflowVersion: 3,
   requirements: [true, false, false],
   feasibility: false,
   defense: false,
@@ -241,17 +244,19 @@ export function loadProjects() {
                 (project.feasibility === false || !project.defense)
               ? 0
               : project.stage;
-        const primaryAnalysisComplete =
-          savedStage >= 5 &&
-          (typeof project.primaryAnalysisComplete === "boolean"
+        const legacyWorkflow = project.workflowVersion !== 3;
+        const savedAnalysisComplete =
+          typeof project.primaryAnalysisComplete === "boolean"
             ? project.primaryAnalysisComplete
-            : savedStage >= 7);
-        const stage =
-          savedStage >= 7 && !primaryAnalysisComplete
+            : savedStage >= 7;
+        const primaryAnalysisComplete =
+          savedAnalysisComplete && savedStage >= (legacyWorkflow ? 5 : 6);
+        // Completed legacy analysis implies that its Intermediate Data was available.
+        const stage = primaryAnalysisComplete
+          ? Math.max(savedStage, 7)
+          : savedStage >= 7
             ? 6
-            : savedStage === 6 && primaryAnalysisComplete
-              ? 7
-              : savedStage;
+            : savedStage;
         const ids = new Set();
         const teamIds = new Set();
         const teamMembers = (
@@ -290,21 +295,31 @@ export function loadProjects() {
             ids.add(beamtime.id);
             return true;
           })
-          .map((beamtime) => ({
-            id: beamtime.id,
-            cycle: typeof beamtime.cycle === "string" ? beamtime.cycle : "",
-            btr: typeof beamtime.btr === "string" ? beamtime.btr : "",
-            stage:
+          .map((beamtime) => {
+            let beamtimeStage =
               stage < 2 || !Number.isInteger(beamtime.stage)
                 ? -1
-                : Math.min(Math.max(-1, beamtime.stage), 3),
-          }));
+                : Math.min(
+                    Math.max(-1, beamtime.stage),
+                    legacyWorkflow ? 3 : 4,
+                  );
+            if (legacyWorkflow && beamtimeStage === 3) beamtimeStage = 4;
+            else if (legacyWorkflow && beamtimeStage === 2 && savedStage >= 6)
+              beamtimeStage = 3;
+            return {
+              id: beamtime.id,
+              cycle: typeof beamtime.cycle === "string" ? beamtime.cycle : "",
+              btr: typeof beamtime.btr === "string" ? beamtime.btr : "",
+              stage: beamtimeStage,
+            };
+          });
         return {
           ...project,
+          workflowVersion: 3,
           teamMembers,
           primaryAnalysisComplete,
           stage:
-            stage === 8 && beamtimes.some((beamtime) => beamtime.stage < 3)
+            stage === 8 && beamtimes.some((beamtime) => beamtime.stage < 4)
               ? 7
               : stage,
           beamtimes,
