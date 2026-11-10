@@ -1,9 +1,46 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import Checkmark from "./Checkmark";
+import SortableHeader from "./SortableHeader";
+
+const teamCollator = new Intl.Collator(undefined, {
+  sensitivity: "base",
+  numeric: true,
+});
 
 export default function ProjectTeam({ project, onUpdate, icon }) {
   const members = project.teamMembers ?? [];
+  const [sort, setSort] = useState({
+    field: "fullName",
+    direction: "ascending",
+  });
+  const sortedMembers = [...members].sort((a, b) => {
+    const first = a[sort.field].trim();
+    const second = b[sort.field].trim();
+    // Keep unlisted companies at the end in either direction.
+    if (!first || !second)
+      return (
+        Number(!first) - Number(!second) ||
+        teamCollator.compare(a.fullName, b.fullName)
+      );
+    const order = teamCollator.compare(first, second);
+    return (
+      (sort.direction === "ascending" ? order : -order) ||
+      teamCollator.compare(a.fullName, b.fullName)
+    );
+  });
+  function sortBy(field) {
+    setSort((current) => ({
+      field,
+      direction:
+        current.field === field && current.direction === "ascending"
+          ? "descending"
+          : "ascending",
+    }));
+  }
   const [isOpen, setIsOpen] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const addButtonRef = useRef(null);
   const triggerRef = useRef(null);
   const sidebarRef = useRef(null);
   const nameRef = useRef(null);
@@ -20,6 +57,26 @@ export default function ProjectTeam({ project, onUpdate, icon }) {
     editingMember &&
     (fullName.trim() !== editingMember.fullName ||
       company.trim() !== editingMember.company);
+
+  useEffect(() => {
+    if (isAdding || editingId) {
+      nameRef.current?.focus();
+      nameRef.current?.scrollIntoView({ block: "nearest" });
+    } else if (isOpen) {
+      addButtonRef.current?.focus();
+    }
+  }, [isAdding, editingId]);
+
+  function cancelEditor() {
+    resetEditor();
+    setMessage("");
+    addButtonRef.current?.focus();
+  }
+  function startAdding() {
+    resetEditor();
+    setIsAdding(true);
+    setMessage("");
+  }
 
   useEffect(() => {
     if (!isOpen) return;
@@ -44,17 +101,17 @@ export default function ProjectTeam({ project, onUpdate, icon }) {
     triggerRef.current?.focus({ preventScroll: true });
   }
   function resetEditor() {
+    setIsAdding(false);
     setEditingId(null);
     setFullName("");
     setCompany("");
   }
   function editMember(member) {
+    setIsAdding(false);
     setEditingId(member.id);
     setFullName(member.fullName);
     setCompany(member.company);
     setMessage("");
-    nameRef.current?.focus();
-    nameRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }
   function requestRemoval(member, event) {
     actionConfirmedRef.current = false;
@@ -66,7 +123,7 @@ export default function ProjectTeam({ project, onUpdate, icon }) {
   function openSidebar() {
     setIsOpen(true);
   }
-  function addMember(event) {
+  function saveMemberRow(event) {
     event.preventDefault();
     const name = fullName.trim();
     if (!name) return;
@@ -89,8 +146,8 @@ export default function ProjectTeam({ project, onUpdate, icon }) {
       ],
     });
     setMessage(`Added ${name} to the team.`);
-    setFullName("");
-    nameRef.current?.focus();
+    resetEditor();
+    addButtonRef.current?.focus();
   }
   function confirmAction() {
     if (!pendingAction) return;
@@ -112,6 +169,76 @@ export default function ProjectTeam({ project, onUpdate, icon }) {
       setMessage(`Updated ${updates.fullName}.`);
     }
     confirmationRef.current.close();
+  }
+
+  function editorCells() {
+    return (
+      <>
+        <td className="team-inline-field">
+          <label className="sr-only" htmlFor="team-member-name">
+            Full name
+          </label>
+          <input
+            ref={nameRef}
+            id="team-member-name"
+            value={fullName}
+            onChange={(event) => setFullName(event.target.value)}
+            placeholder="Full name"
+            autoComplete="name"
+            required
+          />
+        </td>
+        <td className="team-inline-field">
+          <label className="sr-only" htmlFor="team-member-company">
+            Company (optional)
+          </label>
+          <input
+            id="team-member-company"
+            value={company}
+            onChange={(event) => setCompany(event.target.value)}
+            placeholder="Company"
+            autoComplete="organization"
+          />
+        </td>
+        <td className="team-actions-cell">
+          <div className="team-member-actions">
+            <button
+              type="submit"
+              className="team-member-action team-inline-save"
+              aria-label={editingMember ? "Save changes" : "Add person"}
+              title={editingMember ? "Save changes" : "Add person"}
+              disabled={
+                !fullName.trim() || (Boolean(editingMember) && !hasEdits)
+              }
+            >
+              <Checkmark size={17} />
+              <span>{editingMember ? "Save" : "Add"}</span>
+            </button>
+            <button
+              type="button"
+              className="team-member-action team-inline-cancel"
+              aria-label={editingMember ? "Cancel edit" : "Cancel new person"}
+              title="Cancel"
+              onClick={cancelEditor}
+            >
+              <svg
+                width="17"
+                height="17"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                strokeLinecap="round"
+                aria-hidden="true"
+              >
+                <path d="m6 6 12 12M6 18 18 6" />
+              </svg>
+              <span>Cancel</span>
+            </button>
+          </div>
+        </td>
+      </>
+    );
   }
 
   return (
@@ -189,157 +316,192 @@ export default function ProjectTeam({ project, onUpdate, icon }) {
           </header>
           <div className="team-sidebar-scroll">
             <div className="team-sidebar-body">
-              <table
-                className="team-members-table"
-                aria-label="Project team members"
-              >
-                <colgroup>
-                  <col />
-                  <col />
-                  <col className="team-actions-column" />
-                </colgroup>
-                <thead>
-                  <tr>
-                    <th scope="col">Full name</th>
-                    <th scope="col">Company</th>
-                    <th scope="col">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {members.map((member) => (
-                    <tr
-                      key={member.id}
-                      className={
-                        editingId === member.id ? "team-row-editing" : ""
-                      }
-                    >
-                      <td className="team-person-name">
-                        <span className="team-person-avatar" aria-hidden="true">
-                          {member.fullName
-                            .trim()
-                            .split(/\s+/)
-                            .slice(0, 2)
-                            .map((part) => part[0])
-                            .join("")
-                            .toUpperCase()}
-                        </span>
-                        <span>{member.fullName}</span>
-                      </td>
-                      <td className="team-person-company">
-                        {member.company || "No company listed"}
-                      </td>
-                      <td className="team-actions-cell">
-                        <div className="team-member-actions">
-                          <button
-                            type="button"
-                            className="team-member-action"
-                            aria-label={`Edit ${member.fullName}`}
-                            title={`Edit ${member.fullName}`}
-                            onClick={() => editMember(member)}
-                          >
-                            <svg
-                              width="18"
-                              height="18"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="1.7"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              aria-hidden="true"
-                            >
-                              <path d="m15 5 4 4M4 20l4-1L20 7a2.1 2.1 0 0 0-3-3L5 16l-1 4Z" />
-                            </svg>
-                            <span>{"Edit"}</span>
-                          </button>
-                          <button
-                            type="button"
-                            className="team-member-action remove-team-member"
-                            aria-label={`Remove ${member.fullName}`}
-                            title={`Remove ${member.fullName}`}
-                            onClick={(event) => requestRemoval(member, event)}
-                          >
-                            <svg
-                              width="18"
-                              height="18"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="1.7"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              aria-hidden="true"
-                            >
-                              <path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7" />
-                            </svg>
-                            <span>Remove</span>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {!members.length && (
-                    <tr>
-                      <td colSpan={3} className="team-empty-cell">
-                        No team members yet. Add a person below.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-            <form className="team-member-form" onSubmit={addMember}>
-              <h3>{editingMember ? "Edit person" : "Add a person"}</h3>
-              <label htmlFor="team-member-name">Full name</label>
-              <input
-                ref={nameRef}
-                id="team-member-name"
-                value={fullName}
-                onChange={(event) => setFullName(event.target.value)}
-                placeholder="e.g. Alex Morgan"
-                autoComplete="name"
-                required
-              />
-              <label htmlFor="team-member-company">Company (optional)</label>
-              <input
-                id="team-member-company"
-                value={company}
-                onChange={(event) => setCompany(event.target.value)}
-                placeholder="e.g. Cornell University"
-                autoComplete="organization"
-              />
-              <div className="team-member-form-actions">
-                <button
-                  type="submit"
-                  className="button primary"
-                  disabled={
-                    !fullName.trim() || (Boolean(editingMember) && !hasEdits)
-                  }
-                >
-                  {editingMember ? "Save changes" : "Add person"}
-                </button>
-                {editingMember && (
-                  <button
-                    type="button"
-                    className="button secondary"
-                    onClick={() => {
-                      resetEditor();
-                      setMessage("");
-                      nameRef.current?.focus();
+              <div className="team-table-toolbar">
+                <div className="team-mobile-sort">
+                  <label htmlFor="team-sort">Sort by</label>
+                  <select
+                    id="team-sort"
+                    value={`${sort.field}:${sort.direction}`}
+                    onChange={(event) => {
+                      const [field, direction] = event.target.value.split(":");
+                      setSort({ field, direction });
                     }}
                   >
-                    Cancel edit
-                  </button>
-                )}
+                    <option value="fullName:ascending">
+                      Full name (A to Z)
+                    </option>
+                    <option value="fullName:descending">
+                      Full name (Z to A)
+                    </option>
+                    <option value="company:ascending">Company (A to Z)</option>
+                    <option value="company:descending">Company (Z to A)</option>
+                  </select>
+                </div>
+                <button
+                  ref={addButtonRef}
+                  type="button"
+                  className="button secondary team-add-button"
+                  aria-label="Add team member"
+                  title="Add team member"
+                  onClick={startAdding}
+                  disabled={isAdding || Boolean(editingMember)}
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                </button>
               </div>
-              <span
+              <form className="team-table-frame" onSubmit={saveMemberRow}>
+                <table
+                  className="team-members-table"
+                  aria-label="Project team members"
+                >
+                  <colgroup>
+                    <col />
+                    <col />
+                    <col className="team-actions-column" />
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <SortableHeader
+                        field="fullName"
+                        label="Full name"
+                        sort={sort}
+                        onSort={sortBy}
+                      />
+                      <SortableHeader
+                        field="company"
+                        label="Company"
+                        sort={sort}
+                        onSort={sortBy}
+                      />
+                      <th scope="col" className="team-actions-heading">
+                        <span className="sr-only">Actions</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {isAdding && (
+                      <tr
+                        className="team-inline-row team-row-editing"
+                        aria-label="New team member"
+                      >
+                        {editorCells()}
+                      </tr>
+                    )}
+                    {sortedMembers.map((member) => (
+                      <tr
+                        key={member.id}
+                        className={
+                          editingId === member.id
+                            ? "team-inline-row team-row-editing"
+                            : ""
+                        }
+                      >
+                        {editingId === member.id ? (
+                          editorCells()
+                        ) : (
+                          <>
+                            <td className="team-person-name">
+                              <span
+                                className="team-person-avatar"
+                                aria-hidden="true"
+                              >
+                                {member.fullName
+                                  .trim()
+                                  .split(/\s+/)
+                                  .slice(0, 2)
+                                  .map((part) => part[0])
+                                  .join("")
+                                  .toUpperCase()}
+                              </span>
+                              <span>{member.fullName}</span>
+                            </td>
+                            <td className="team-person-company">
+                              {member.company || "No company listed"}
+                            </td>
+                            <td className="team-actions-cell">
+                              <div className="team-member-actions">
+                                <button
+                                  type="button"
+                                  className="team-member-action"
+                                  aria-label={`Edit ${member.fullName}`}
+                                  title={`Edit ${member.fullName}`}
+                                  disabled={isAdding || Boolean(editingMember)}
+                                  onClick={() => editMember(member)}
+                                >
+                                  <svg
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="1.7"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    aria-hidden="true"
+                                  >
+                                    <path d="m15 5 4 4M4 20l4-1L20 7a2.1 2.1 0 0 0-3-3L5 16l-1 4Z" />
+                                  </svg>
+                                  <span>{"Edit"}</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  className="team-member-action remove-team-member"
+                                  aria-label={`Remove ${member.fullName}`}
+                                  title={`Remove ${member.fullName}`}
+                                  onClick={(event) =>
+                                    requestRemoval(member, event)
+                                  }
+                                >
+                                  <svg
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="1.7"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    aria-hidden="true"
+                                  >
+                                    <path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7M14 10v7" />
+                                  </svg>
+                                  <span>Remove</span>
+                                </button>
+                              </div>
+                            </td>
+                          </>
+                        )}
+                      </tr>
+                    ))}
+                    {!members.length && !isAdding && (
+                      <tr>
+                        <td colSpan={3} className="team-empty-cell">
+                          No team members yet. Use + to add someone.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </form>
+              <p
                 className="team-member-message"
                 role="status"
                 aria-live="polite"
               >
                 {message}
-              </span>
-            </form>
+              </p>
+            </div>
           </div>
         </aside>,
         document.body,
@@ -362,7 +524,8 @@ export default function ProjectTeam({ project, onUpdate, icon }) {
             !target.disabled
           )
             target.focus();
-          else nameRef.current?.focus();
+          else if (nameRef.current) nameRef.current.focus();
+          else addButtonRef.current?.focus();
         }}
       >
         <div className="dialog-content">

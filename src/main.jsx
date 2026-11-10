@@ -22,6 +22,7 @@ import BeamtimeBranches, { BeamtimeMeta } from "./BeamtimeBranches";
 import Checkmark from "./Checkmark";
 import ProjectTeam from "./ProjectTeam";
 import ProjectDetailsEditor from "./ProjectDetailsEditor";
+import SortableHeader from "./SortableHeader";
 
 function Icon({ name, size = 20, ...props }) {
   if (name === "check") return <Checkmark size={size} {...props} />;
@@ -253,8 +254,67 @@ function getPrimaryScientistName(project) {
   );
 }
 
+const projectCollator = new Intl.Collator(undefined, {
+  sensitivity: "base",
+  numeric: true,
+});
+const projectSortColumns = [
+  {
+    field: "active",
+    label: "Status",
+    ascending: "Status: active first",
+    descending: "Status: inactive first",
+  },
+  {
+    field: "id",
+    label: "Project #",
+    ascending: "Project #: low to high",
+    descending: "Project #: high to low",
+  },
+  {
+    field: "name",
+    label: "Project title",
+    ascending: "Title: A to Z",
+    descending: "Title: Z to A",
+  },
+  {
+    field: "scientist",
+    label: "Primary scientist",
+    ascending: "Scientist: A to Z",
+    descending: "Scientist: Z to A",
+  },
+  {
+    field: "milestone",
+    label: "Last milestone",
+    ascending: "Milestone: earliest first",
+    descending: "Milestone: furthest first",
+  },
+  {
+    field: "updated",
+    label: "Last updated",
+    ascending: "Updated: oldest first",
+    descending: "Updated: newest first",
+  },
+];
+
+function getMilestoneRank(project) {
+  if (project.stage === -1) return -1;
+  if (project.stage < 7 && isMilestoneComplete(project, 7)) return 7;
+  return project.stage;
+}
+
 function Dashboard({ projects, onNew, onDelete }) {
   const [hideInactive, setHideInactive] = useState(false);
+  const [sort, setSort] = useState({ field: null, direction: "ascending" });
+  function sortBy(field) {
+    setSort((current) => ({
+      field,
+      direction:
+        current.field === field && current.direction === "ascending"
+          ? "descending"
+          : "ascending",
+    }));
+  }
   const [search, setSearch] = useState("");
   const [deletingProject, setDeletingProject] = useState(null);
   const deleteDialogRef = useRef(null);
@@ -270,9 +330,38 @@ function Dashboard({ projects, onNew, onDelete }) {
     onDelete(deletingProject.id);
     deleteDialogRef.current.close();
   }
-  const visible = projects.filter(
-    (p) => (!hideInactive || p.active) && matchesProjectSearch(p, search),
-  );
+  const visible = projects
+    .filter(
+      (p) => (!hideInactive || p.active) && matchesProjectSearch(p, search),
+    )
+    .sort((a, b) => {
+      if (!sort.field) return 0;
+      let order = 0;
+      switch (sort.field) {
+        case "active":
+          order = Number(!a.active) - Number(!b.active);
+          break;
+        case "id":
+          order = a.id - b.id;
+          break;
+        case "name":
+          order = projectCollator.compare(a.name, b.name);
+          break;
+        case "scientist":
+          order = projectCollator.compare(
+            getPrimaryScientistName(a),
+            getPrimaryScientistName(b),
+          );
+          break;
+        case "milestone":
+          order = getMilestoneRank(a) - getMilestoneRank(b);
+          break;
+        case "updated":
+          order = projectCollator.compare(a.updated, b.updated);
+          break;
+      }
+      return (sort.direction === "ascending" ? order : -order) || a.id - b.id;
+    });
   const activeCount = projects.filter((p) => p.active).length;
   return (
     <>
@@ -337,13 +426,21 @@ function Dashboard({ projects, onNew, onDelete }) {
           <table>
             <thead>
               <tr>
-                <th>Status</th>
-                <th>Project #</th>
-                <th className="project-title-column">Project title</th>
-                <th>Primary scientist</th>
-                <th>Last milestone</th>
-                <th>Last updated</th>
-                <th>
+                {projectSortColumns.map((column) => (
+                  <SortableHeader
+                    key={column.field}
+                    field={column.field}
+                    label={column.label}
+                    className={
+                      column.field === "name"
+                        ? "project-title-column"
+                        : undefined
+                    }
+                    sort={sort}
+                    onSort={sortBy}
+                  />
+                ))}
+                <th scope="col">
                   <span className="sr-only">Project actions</span>
                 </th>
               </tr>
@@ -399,6 +496,33 @@ function Dashboard({ projects, onNew, onDelete }) {
             </tbody>
           </table>
         </div>
+        <label className="project-mobile-sort">
+          <span>Sort by</span>
+          <select
+            aria-label="Sort projects"
+            value={sort.field ? `${sort.field}:${sort.direction}` : "default"}
+            onChange={(event) => {
+              const [field, direction] = event.target.value.split(":");
+              setSort(
+                field === "default"
+                  ? { field: null, direction: "ascending" }
+                  : { field, direction },
+              );
+            }}
+          >
+            <option value="default">Default order</option>
+            {projectSortColumns.flatMap((column) =>
+              ["ascending", "descending"].map((direction) => (
+                <option
+                  key={`${column.field}:${direction}`}
+                  value={`${column.field}:${direction}`}
+                >
+                  {column[direction]}
+                </option>
+              )),
+            )}
+          </select>
+        </label>
         <ul className="project-cards" aria-label="Projects">
           {visible.map((p) => (
             <li key={p.id}>
@@ -752,9 +876,6 @@ function ProjectDetail({ project, onUpdate }) {
       <div className="requirements-grid">
         <section className="requirements-card">
           <div className="card-heading">
-            <span className="icon-tile small">
-              <Icon name="check" size={19} />
-            </span>
             <h2>Program requirements</h2>
             <span className="card-count">
               {p.requirements.filter(Boolean).length} of 3
@@ -801,7 +922,10 @@ function ProjectDetail({ project, onUpdate }) {
               onUpdate={onUpdate}
               icon={<Icon name="team" size={22} />}
             />
-            <section className="project-details-section" aria-labelledby="project-contacts-title">
+            <section
+              className="project-details-section"
+              aria-labelledby="project-contacts-title"
+            >
               <h3 id="project-contacts-title">Contacts</h3>
               <div className="project-contact-fields">
                 <div className="project-detail-field">
@@ -810,18 +934,33 @@ function ProjectDetail({ project, onUpdate }) {
                     id="primary-scientist"
                     aria-describedby="primary-scientist-role"
                     value={p.primaryScientist}
-                    onChange={(e) => onUpdate({ primaryScientist: e.target.value })}
+                    onChange={(e) =>
+                      onUpdate({ primaryScientist: e.target.value })
+                    }
                   >
-                    {[...new Set(scientists.map(scientist => scientist.role))].map(role => (
+                    {[
+                      ...new Set(scientists.map((scientist) => scientist.role)),
+                    ].map((role) => (
                       <optgroup key={role} label={role}>
-                        {scientists.filter(scientist => scientist.role === role).map(scientist => (
-                          <option key={scientist.id} value={scientist.id}>{scientist.name}</option>
-                        ))}
+                        {scientists
+                          .filter((scientist) => scientist.role === role)
+                          .map((scientist) => (
+                            <option key={scientist.id} value={scientist.id}>
+                              {scientist.name}
+                            </option>
+                          ))}
                       </optgroup>
                     ))}
                   </select>
-                  <span id="primary-scientist-role" className="project-field-help">
-                    {scientists.find(scientist => scientist.id === p.primaryScientist)?.role}
+                  <span
+                    id="primary-scientist-role"
+                    className="project-field-help"
+                  >
+                    {
+                      scientists.find(
+                        (scientist) => scientist.id === p.primaryScientist,
+                      )?.role
+                    }
                   </span>
                 </div>
                 <div className="project-detail-field">
@@ -831,7 +970,9 @@ function ProjectDetail({ project, onUpdate }) {
                     type="text"
                     value={p.externalContact}
                     placeholder="Enter contact name"
-                    onChange={(e) => onUpdate({ externalContact: e.target.value })}
+                    onChange={(e) =>
+                      onUpdate({ externalContact: e.target.value })
+                    }
                   />
                 </div>
               </div>
@@ -957,7 +1098,7 @@ function App() {
     document.documentElement.dataset.theme = theme;
     document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute("content", theme === "dark" ? "#171310" : "#ffffff");
+      ?.setAttribute("content", theme === "dark" ? "#171513" : "#ffffff");
     try {
       localStorage.setItem("project-management-theme", theme);
     } catch {
